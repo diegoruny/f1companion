@@ -6,9 +6,11 @@ from api.api_handler import ErgastAPI
 def main():
     root = tk.Tk()
     root.title('F1 Race Companion')
-    root.geometry("800x600")
+    root.geometry("1024x768")
+    # Use the silicon_valley dark theme for the ttk widgets
     sv_ttk.use_dark_theme()
 
+    # Create an instance of the API handler
     api_handler = ErgastAPI()
     
     # Launch and shows the dashboard
