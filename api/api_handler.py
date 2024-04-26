@@ -14,7 +14,7 @@ class ErgastAPI:
             "name": next_race['raceName'],
             "circuit": next_race['Circuit']['circuitName'],
             "date": next_race['date'],
-            "time": next_race['time'],
+            "time": next_race['time'], #Is not returning the time to the card
             "url": next_race['url'],
             "location": f"{next_race['Circuit']['Location']['locality']}, {next_race['Circuit']['Location']['country']}"
         }
@@ -39,7 +39,7 @@ class ErgastAPI:
             for result in race_podium:
                 driver_card = {
                     "position": result['position'],
-                    "name": result['Driver']['givenName'] + " " + ['familyName'],
+                    "name": result['Driver']['givenName']+ " " + result['Driver']['familyName'],
                     "number": result['Driver']['permanentNumber'],
                     "team": result['Constructor']['name'],
                     "code_Name": result['Driver']['code'],
