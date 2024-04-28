@@ -11,21 +11,21 @@ class NextRaceView(tk.Frame):
 
     def last_race_card(self):
         race_details = self.api_handler.get_last_race()[0]
-        print(race_details)
+        #print("Last Race json:\n", race_details)
         if race_details:
             # Frame for the card
             card_frame = ttk.Frame(self, padding="10", relief="raised", borderwidth=2)
-            card_frame.pack(padx=10, pady=10, fill="both", expand=True)
+            card_frame.grid(sticky='nsew')
 
             # Race Title
-            ttk.Label(card_frame, text=f"{race_details['name']}", font=("Arial", 16, "bold")).pack()
+            ttk.Label(card_frame, text=f"{race_details['name']}", font=("Arial", 16, "bold")).grid(padx=10, pady=10, sticky='n')
 
             # Circuit y Location
-            ttk.Label(card_frame, text=f"Circuit: {race_details['circuit']} - {race_details['location']}", font=("Arial", 12)).pack()
+            ttk.Label(card_frame, text=f"{race_details['circuit']} - {race_details['location']}", font=("Arial", 12)).grid(padx=10, pady=10, sticky='n')
 
             # Date and Time
-            date_time_str = f"Date: {race_details['date']} - Time: {race_details['time']}"  #Here the time is not being received
-            ttk.Label(card_frame, text=date_time_str, font=("Arial", 12)).pack()
+            date_time_str = f"{race_details['date']}"
+            ttk.Label(card_frame, text=date_time_str, font=("Arial", 12)).grid(padx=10, pady=10 , sticky='n')
 
             return card_frame
 
@@ -36,20 +36,21 @@ class NextRaceView(tk.Frame):
 
     def next_race_card(self):
         race_details = self.api_handler.get_next_race()
+        #print('Next race card:\n', race_details)
         if race_details:
             # Frame for the card
             card_frame = ttk.Frame(self, padding="10", relief="raised", borderwidth=2)
-            card_frame.pack(padx=10, pady=10, fill="both", expand=True)
+            card_frame.grid(sticky='nsew')
 
             # Race Title
-            ttk.Label(card_frame, text=f"{race_details['name']}", font=("Arial", 16, "bold")).pack()
+            ttk.Label(card_frame, text=f"{race_details['name']}", font=("Arial", 16, "bold")).grid(padx=10, pady=10 , sticky='n')
 
             # Circuit y Location
-            ttk.Label(card_frame, text=f"Circuit: {race_details['circuit']} - {race_details['location']}", font=("Arial", 12)).pack()
+            ttk.Label(card_frame, text=f"{race_details['circuit']} - {race_details['location']}", font=("Arial", 12)).grid(padx=10, pady=10 , sticky='n')
 
             # Date and Time
-            date_time_str = f"Date: {race_details['date']} - Time: {race_details['time']}"
-            ttk.Label(card_frame, text=date_time_str, font=("Arial", 12)).pack()
+            date_time_str = f"{race_details['date']} - {race_details['time']}"
+            ttk.Label(card_frame, text=date_time_str, font=("Arial", 12)).grid(padx=10, pady=10 , sticky='n')
             return card_frame
 
         else:

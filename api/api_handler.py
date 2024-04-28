@@ -1,4 +1,4 @@
-# Version: 1.0
+# Version: 0.01
 import requests
 
 class ErgastAPI:
@@ -6,18 +6,21 @@ class ErgastAPI:
 
     def get_next_race(self):
         response = requests.get(f"{self.BASE_URL}/current/next.json", timeout=5)
+        print(response)
         if response.status_code == 200:
             data = response.json()
             next_race = data['MRData']['RaceTable']['Races'][0]
+            print(next_race["time"])
             # Extraer y retornar solo los datos relevantes
             race_details = {
             "name": next_race['raceName'],
             "circuit": next_race['Circuit']['circuitName'],
             "date": next_race['date'],
-            "time": next_race['time'], #Is not returning the time to the card
+            "time": next_race['time'],
             "url": next_race['url'],
             "location": f"{next_race['Circuit']['Location']['locality']}, {next_race['Circuit']['Location']['country']}"
         }
+            print("holiwi",race_details)
             return race_details
         else:
             print("Failed to retrieve the next race:", response.status_code)
@@ -57,9 +60,25 @@ class ErgastAPI:
         response = requests.get(f"{self.BASE_URL}/current/driverStandings.json", timeout=5)
         if response.status_code == 200:
             data = response.json()
-            standings = data['MRData']['StandingsTable']['StandingsLists'][0]['DriverStandings']
-            standings = sorted(standings, key=lambda x: int(x['position']))
-            return standings
+            raw_standings = data['MRData']['StandingsTable']['StandingsLists'][0]['DriverStandings']
+            raw_standings = sorted(raw_standings, key=lambda x: int(x['position']))
+            
+            # Process the data to fit the UI component
+            processed_standings = []
+            for driver in raw_standings:
+                driver_info = {
+                    'POS': int(driver['position']),
+                    'NAME': f"{driver['Driver']['givenName']} {driver['Driver']['familyName']}",
+                    'NATIONALITY': driver['Driver']['nationality'],
+                    'TEAM': {
+                        'name': driver['Constructors'][0]['name'], 
+                        'teamId': driver['Constructors'][0]['constructorId']
+                    },
+                    'PTS': driver['points']
+                }
+                processed_standings.append(driver_info)
+
+            return processed_standings
         return None
 
     def get_constructor_standings(self):
