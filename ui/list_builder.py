@@ -9,7 +9,7 @@ class Standings(ttk.Frame):
         super().__init__(parent, *args, **kwargs)
         self.parent = parent
         self.api_handler = api_handler
-        ttk.Label(self, text="Clasificaciones de Pilotos").pack(pady=10)
+        ttk.Label(self.parent, text="DRIVERS STANDINGS", font=('Helvetica', 22)).pack(pady=10)
         self.standings_area = ttk.Frame(self)
 
         self.drivers_data = self.api_handler.get_driver_standings()
@@ -24,22 +24,22 @@ class Standings(ttk.Frame):
         # self.drivers = 
 
         team_colors = {
-            'red_bull': '#1E41FF',  # Un azul distintivo
-            'mercedes': '#00D2BE',  # Un turquesa brillante
-            'ferrari': '#DC0000',   # Rojo Ferrari
-            'mclaren': '#FF8700',   # Naranja McLaren
-            'aston_martin': '#006F62',  # Verde oscuro de Aston Martin
-            'alpine': '#0090FF',    # Azul de Alpine
-            'sauber': '#900000',  # Rojo oscuro
-            'haas': '#E6002B',      # Blanco (o puede usar un gris oscuro)
-            'williams': '#005AFF',  # Azul de Williams
-            'rb': '#2B4562',  # Azul marino
+            'red_bull': '#1E41FF',  # Red Bull Racing Blue
+            'mercedes': '#00D2BE',  # Mercedes Turquoise
+            'ferrari': '#DC0000',   # Red Ferrari
+            'mclaren': '#FF8700',   # McLaren papaya
+            'aston_martin': '#006F62',  # Green Aston Martin
+            'alpine': '#0090FF',    # Alpine Blue      #should I change it to pink? 
+            'sauber': '#FFD700',  # KIK green 
+            'haas': '#E6002B',      # Haas Red
+            'williams': '#005AFF',  # Blue Williams
+            'rb': '#2B4562',  # Visa Cash App RB Blue
         }
 
         def create_standings_table(parent, driver_standings):
             # Define the columns
             columns = ('pos', 'name', 'nationality', 'team', 'pts')
-            tree = ttk.Treeview(parent, columns=columns, show='headings', bootstyle='danger-inverted')
+            tree = ttk.Treeview(parent, columns=columns, show='headings', bootstyle='danger-inverted', stripecolor=('gray', None))
 
             # Define the column headings
             tree.heading('pos', text='POS', anchor='w', )
@@ -61,7 +61,7 @@ class Standings(ttk.Frame):
                 team_name = driver['TEAM']['name']
                 team_id = driver['TEAM']['teamId']
                 color = team_colors.get(team_id, '#FFFFFF')
-                print('\nTeamId: ', team_id, '\nTeam name: ', team_name, '\nTeam color: ', color, )
+                # print('\nTeamId: ', team_id, '\nTeam name: ', team_name, '\nTeam color: ', color, )
                 #Insert the row info
                 tree.insert('', 'end', values=(
                     driver['POS'],
@@ -69,10 +69,10 @@ class Standings(ttk.Frame):
                     driver['NATIONALITY'],
                     driver['TEAM']['name'],
                     driver['PTS']
-                ), tags=(team_id,))
+                ), tags=())
 
-                #style the rows to use the team color
-                tree.tag_configure(team_id, background=color)
+                # if driver['POS'] % 2 == 0:
+                #     tree.tag_configure(, background='gray')
 
             # Add a scrollbar
             scrollbar = ttk.Scrollbar(parent, orient='vertical', command=tree.yview, bootstyle='round')

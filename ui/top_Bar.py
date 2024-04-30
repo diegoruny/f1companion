@@ -9,17 +9,13 @@ class TopBar(ttk.Frame):
         self.parent = parent
 
         # Frame container for both the last and the next race
-        self.top_bar_frame = ttk.Frame(self, bootstyle='dark.TFrame')
-        self.top_bar_frame.grid(padx=0, pady=0, sticky='EW')
+        self.top_bar_frame = ttk.Frame(self, bootstyle='dark')
+        self.top_bar_frame.pack(fill='x', side='top', anchor='ne')
 
-        self.next_race_card()
-        #self.last_race_card()
+        #Main Image label
+        self.main_logo_image = tk.PhotoImage(file="ui/assets/f1_logo.png")
+        self.menu_label = ttk.Label(self.top_bar_frame, text='F1 Companion App', image=self.main_logo_image, compound='top', font=("Helvetica", 16), bootstyle='inverse-dark')
+        self.menu_label.pack(padx=10, pady=10, side='left')
 
-    # def last_race_card(self):
-    #     ttk.Label(self, text="Last race from top_Bar.py", font=("Arial", 16, "bold"), borderwidth=4, relief="solid").grid(padx=10, pady=10, sticky='n')
-    #     self.last_race_view = NextRaceView.last_race_card(self)
-    #     # need to finish the func in nextRace.py
-
-    def next_race_card(self):
-        self.next_race_view = NextRaceView(self, self.api_handler)
-        self.next_race_view.grid(padx=10, pady=10, sticky='s')
+        #Cards for the last and nex race
+        NextRaceView(self.top_bar_frame, self.api_handler).pack(side='right', padx=10, pady=10, fill='x', expand=True)

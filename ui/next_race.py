@@ -6,22 +6,23 @@ class NextRaceView(tk.Frame):
         super().__init__(parent, *args, **kwargs)
         self.parent = parent
         self.api_handler = api_handler
-        self.last_race_card().grid(row=0, column=0)
-        self.next_race_card().grid(row=0, column=1)
+        self.last_race_card().pack()
+        self.next_race_card().pack()
 
     def last_race_card(self):
         race_details = self.api_handler.get_last_race()[0]
         #print("Last Race json:\n", race_details)
         if race_details:
             # Frame for the card
-            card_frame = ttk.Frame(self, padding="10", relief="raised", borderwidth=2)
-            card_frame.grid(sticky='nsew')
+            card_frame = ttk.Labelframe(self, text='LAST', bootstyle='danger')
+            card_frame.pack(side='left', padx=10, pady=10, fill='both', expand=True)
 
             # Race Title
-            ttk.Label(card_frame, text=f"{race_details['name']}", font=("Arial", 16, "bold")).grid(padx=10, pady=10, sticky='n')
+            ttk.Label(card_frame, text=f"{race_details['name']}", font=("Arial", 16, "bold"), bootstyle='inverse-dark').grid(padx=10, pady=10, sticky='ew')
 
             # Circuit y Location
-            ttk.Label(card_frame, text=f"{race_details['circuit']} - {race_details['location']}", font=("Arial", 12)).grid(padx=10, pady=10, sticky='n')
+            ttk.Label(card_frame, text=f"{race_details['circuit']}", font=("Arial", 12)).grid(padx=10, pady=10, sticky='ew')
+            ttk.Label(card_frame, text=f'{race_details['location']}').grid(padx=10, pady=10, sticky='n')
 
             # Date and Time
             date_time_str = f"{race_details['date']}"
@@ -39,8 +40,8 @@ class NextRaceView(tk.Frame):
         #print('Next race card:\n', race_details)
         if race_details:
             # Frame for the card
-            card_frame = ttk.Frame(self, padding="10", relief="raised", borderwidth=2)
-            card_frame.grid(sticky='nsew')
+            card_frame = ttk.Labelframe(self, text='NEXT', bootstyle='danger')
+            card_frame.pack(side='right', padx=10, pady=10, fill='both', expand=True)
 
             # Race Title
             ttk.Label(card_frame, text=f"{race_details['name']}", font=("Arial", 16, "bold")).grid(padx=10, pady=10 , sticky='n')
