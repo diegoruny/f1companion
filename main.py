@@ -8,7 +8,7 @@ def main():
     root.title('F1 Race Companion')
     root.geometry("1024x768")
     # Use the silicon_valley dark theme for the ttk widgets
-    sv_ttk.use_dark_theme()
+    # sv_ttk.use_dark_theme()  testing the impact
 
     # Create an instance of the API handler
     api_handler = ErgastAPI()
