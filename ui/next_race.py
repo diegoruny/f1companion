@@ -61,3 +61,6 @@ class NextRaceView(tk.Frame):
         else:
             print("Failed to retrieve complete race details or podium.")
             return None  # Explicitly return None if data is incomplete
+
+
+    

@@ -1,22 +1,65 @@
-import plotly.express as px
-import pandas as pd
+import pygame
+import sys
 
-# Example data loading
-df = pd.read_csv('/mnt/data/lap_times.csv')
+# Initialize Pygame
+pygame.init()
 
-# Preprocessing to simplify the example
-df = df[df['raceId'] == 841]  # Filter for a specific race for demonstration
+# Set up the display
+screen_width = 800
+screen_height = 600
+screen = pygame.display.set_mode((screen_width, screen_height))
+pygame.display.set_caption("F1 Race Visualization")
 
-# Creating the animated scatter plot
-fig = px.scatter(df, x="lap", y="position", animation_frame="lap", animation_group="driverId",
-                 size_max=55, range_y=[df.position.max(), df.position.min()],
-                 labels={"position": "Position", "lap": "Lap Number"})
+# Define colors
+BLACK = (0, 0, 0)
+WHITE = (255, 255, 255)
+GRAY = (230, 230, 230)
+DARK_GRAY = (100, 100, 100)
+BG_COLOR = (71, 73, 80)
 
-# Enhancing the plot
-fig.update_layout(title="F1 Race Position Animation",
-                  xaxis_title="Lap Number",
-                  yaxis_title="Position",
-                  showlegend=False)
+# Clock to control the frame rate
+clock = pygame.time.Clock()
 
-# Show the plot
-fig.show()
+# Initial background position
+background_x = 0
+
+# Car positions (static for now)
+car_positions = [(screen_width // 3, screen_height // 2 + i * 50) for i in range(5)]
+
+# Main game loop
+running = True
+while running:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+
+    # Move the background
+    background_x -= 2
+    if background_x < -screen_width:
+        background_x = 0
+
+    # Fill the screen with black
+    screen.fill(BG_COLOR)
+
+    # Draw the lines that will divide the laps and the start/finish line)
+    pygame.draw.line(screen, GRAY, (background_x, 0), (background_x, screen_height), 2)
+    
+    pygame.draw.line(screen, GRAY, (background_x + screen_width // 2, 0), (background_x + screen_width // 2, screen_height), 2)
+
+    # Draw static cars using the image of the car loaded from the disk for each car position
+    
+    
+    for pos in car_positions:
+        screen.blit(pygame.image.load("C:/Users/Diegoruny/Documents/Coding/Python/Intro Soft Dev/codefoemefromme/Final Proyect/finalProject/utils/sprites/williams.bmp"), (50, 30))
+        pygame.draw.rect(screen, WHITE, pygame.Rect(pos[0], pos[1], 50, 30))
+
+
+    # Update the display
+    pygame.display.flip()
+
+    # Limit frames per second
+    clock.tick(60)
+
+# Quit Pygame
+pygame.quit()
+sys.exit()
