@@ -20,7 +20,6 @@ class Car:
         """Method to move the car on the canvas."""
         self.x += dx
         self.y += dy
-        # self.speed = speed #Valocidad de movimiento del carro 0 a 2 siendo 2 la velocidad maxima verificar
         self.canvas.move(self.sprite, dx, dy)
         self.canvas.move(self.label, dx, dy)
 
@@ -50,6 +49,8 @@ def load_data():
     race_details = race_details.merge(qualifying_df, on=['raceId', 'driverId', 'constructorId'], how='left')
     race_details = race_details.merge(status_df, on='statusId')
 
+    race_details['time'] = pd.to_timedelta('0:' + race_details['time'])
+
     # Guardar datos procesados
     race_details.to_csv("final_race_data2.csv", index=False)
 
@@ -57,9 +58,6 @@ def load_data():
 
 
 def setup_canvas(root):
-    """
-    Sets up the tkinter canvas.
-    """
     canvas_width = 1500
     canvas_height = 700
     canvas = tk.Canvas(root, width=canvas_width, height=canvas_height, bg="dark gray")
@@ -108,6 +106,7 @@ def create_car_sprites(canvas, images, race_details):
             car = Car(canvas, images[constructor], x_pos, y_pos, driver_name, driver_code)
             car_sprites[driver_name] = car
             y_pos += images[constructor].height() + space  # Adjust y position for the next car
+            x_pos -= 5  # Adjust x position for the next car
 
             
         else:
@@ -119,46 +118,52 @@ def create_car_sprites(canvas, images, race_details):
 
 
 def move_cars(car_sprites, canvas, race_details):
-    lap_data = race_details[['driverRef', 'lap', 'position_x', 'time']].drop_duplicates()
-    total_width = canvas.winfo_width()
-    start_x = 50
-    car_width = next(iter(car_sprites.values())).image.width()
-    edge_buffer = 20  # Buffer to stop before the edge of the canvas
-    max_x = total_width - car_width - edge_buffer
+    total_duration = 60000  # Total duration of the animation in milliseconds (60 seconds)
+    laps = sorted(race_details['lap'].unique())  # Get all unique laps and sort them
+    num_laps = len(laps)  # Total number of laps
+    frame_interval = total_duration // num_laps  # Time interval per lap frame
+    canvas_width = canvas.winfo_reqwidth()  # Total width of the canvas in pixels
 
-    # This dict maps current positions to y-coordinates
-    y_positions_coordinates = {i + 1: 50 + i * 30 for i in range(len(car_sprites))}
+    def update_car_positions(current_lap):
+        """Updates the car positions for the given lap, including horizontal movement based on lap time."""
+        lap_data = race_details[race_details['lap'] == current_lap]
+        min_time = lap_data['time'].min().total_seconds()  # Fastest lap time in seconds for scaling
+        
+        for index, row in lap_data.iterrows():
+            driver_name = row['driverRef']
+            if driver_name in car_sprites:
+                car = car_sprites[driver_name]
+                # Calculate new Y position
+                new_y = 50 + (row['position_x'] - 1) * 30
+                # Calculate X movement based on lap time
+                lap_time_seconds = row['time'].total_seconds()
+                dx = (lap_time_seconds / min_time) * canvas_width / num_laps  # Scale movement by lap time
+                dy = new_y - car.y if car.y != new_y else 0
+                
+                car.move(dx, dy)  # Apply movement
+                car.x += dx  # Update internal x position
+                car.y = new_y  # Update internal y position if changed
 
-    def animate(lap=1):
-        nonlocal car_sprites
-        if lap > lap_data['lap'].max():
-            return  # Stops the animation after the last lap
+    def animate(lap_index=0):
+        """Animates each lap in sequence with x-axis movement based on lap time."""
+        if lap_index < num_laps:
+            current_lap = laps[lap_index]
+            update_car_positions(current_lap)
+            canvas.after(frame_interval, lambda: animate(lap_index + 1))
 
-        current_lap_data = lap_data[lap_data['lap'] == lap]
-        for car in car_sprites.values():
-            driver_lap_data = current_lap_data[current_lap_data['driverRef'] == car.name]
-            if not driver_lap_data.empty:
-                new_position = int(driver_lap_data['position_x'].iloc[0])
-                new_y = y_positions_coordinates[new_position]
-                race_details['time'] = pd.to_timedelta('0:' + race_details['time'])
-                race_details['speed'] = max_x / race_details['time'].dt.total_seconds()
-
-                # Move the car to the new position and adjust speed
-                car.move(speed_adjustment if car.x + speed_adjustment < max_x else 0, new_y - car.y)
-
-        canvas.after(50, animate, lap + 1)
-
-    animate()  # Start the animation
+    animate()
 
 
 
 
-def main():
-    """
-    Main function to run the simulation.
-    """
-    root = tk.Tk()
+
+
+
+
+def run_simulation():
+    root = tk.Toplevel()
     root.title("F1 Race Simulation")
+    root.geometry("1500x700")
     canvas = setup_canvas(root)
     
     race_details = load_data()
@@ -169,4 +174,4 @@ def main():
     root.mainloop()
 
 if __name__ == '__main__':
-    main()
+    run_simulation()
