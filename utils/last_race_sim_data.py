@@ -1,32 +1,36 @@
+import pygame
 import pandas as pd
 from datetime import datetime
-import tkinter as tk
 import os
-from PIL import Image, ImageTk
 
-class Car:
-    def __init__(self, canvas, image, x, y, name, code):
-        self.canvas = canvas
+# Constants
+WIDTH, HEIGHT = 1500, 700
+FPS = 60
+START_LINE_Y = 50
+FINISH_LINE_Y = HEIGHT - 50
+THIRD_WIDTH = WIDTH // 3
+HALF_WIDTH = WIDTH // 2
+FINISH_LINE_X = WIDTH - 50
+
+# Car class for creating car sprites
+class Car(pygame.sprite.Sprite):
+    def __init__(self, image, x, y, name, code):
+        super().__init__()
         self.image = image
-        self.sprite = canvas.create_image(x, y, image=image, anchor='nw')
+        self.rect = self.image.get_rect()
+        self.rect.topleft = (x, y)
         self.name = name
-        self.x = x
-        self.y = y
         self.code = code
-        # Displaying the driver code next to the car sprite
-        self.label = canvas.create_text(x + image.width() + 25, y + image.height() / 2, text=f"[{self.code}]", fill="white", font=("Helvetica", 12))
-    
-    def move(self, dx, dy):
-        """Method to move the car on the canvas."""
-        self.x += dx
-        self.y += dy
-        self.canvas.move(self.sprite, dx, dy)
-        self.canvas.move(self.label, dx, dy)
+        self.velocity = 0
 
+    # Update the position of the car
+    def update(self, dx, dy):
+        self.rect.x += dx
+        self.rect.y += dy
+
+# Load data from CSV files
 def load_data():
-    
-
-    # Cargar sólo las columnas necesarias y convertir fechas directamente
+    # Load data from CSV files
     drivers_df = pd.read_csv('./api/localData/drivers.csv', usecols=['driverId', 'driverRef', 'number', 'code'])
     results_df = pd.read_csv('./api/localData/results.csv', usecols=['raceId', 'driverId', 'constructorId', 'statusId'])
     constructors_df = pd.read_csv('./api/localData/constructors.csv', usecols=['constructorId', 'constructorRef'])
@@ -36,11 +40,21 @@ def load_data():
     qualifying_df = pd.read_csv('./api/localData/qualifying.csv', usecols=['raceId', 'driverId', 'constructorId', 'position'])
     status_df = pd.read_csv('./api/localData/status.csv', usecols=['statusId', 'status'])
 
-    # Filtrar la última carrera que ya ocurrió
-    last_race = races_df[races_df['date'] <= datetime.now()].iloc[-1]
+    # Filter past races
+    past_races = races_df[races_df['date'] <= datetime.now()]
+    if past_races.empty:
+        print("No past races found.")
+        return pd.DataFrame()
 
-    # Fusiones eficientes
-    race_details = results_df[results_df['raceId'] == last_race['raceId']]
+    # Get the last race
+    last_race = past_races.iloc[-1]
+    if last_race['raceId'] not in results_df['raceId'].values:
+        latest_race_id = results_df['raceId'].max()
+        race_details = results_df[results_df['raceId'] == latest_race_id]
+    else:
+        race_details = results_df[results_df['raceId'] == last_race['raceId']]
+
+    # Merge dataframes to get race details
     race_details = race_details.merge(races_df, on='raceId')
     race_details = race_details.merge(drivers_df, on='driverId')
     race_details = race_details.merge(constructors_df, on='constructorId')
@@ -49,129 +63,163 @@ def load_data():
     race_details = race_details.merge(qualifying_df, on=['raceId', 'driverId', 'constructorId'], how='left')
     race_details = race_details.merge(status_df, on='statusId')
 
-    race_details['time'] = pd.to_timedelta('0:' + race_details['time'])
+    # Fill missing positions and convert time to timedelta
+    if 'position' not in race_details.columns:
+        race_details['position'] = race_details['position_x']
+    race_details['time'] = pd.to_timedelta('0:' + race_details['time'].fillna('0:00.000'))
 
-    # Guardar datos procesados
+    # Save race details to CSV
     race_details.to_csv("final_race_data2.csv", index=False)
 
     return race_details
 
-
-def setup_canvas(root):
-    canvas_width = 1500
-    canvas_height = 700
-    canvas = tk.Canvas(root, width=canvas_width, height=canvas_height, bg="dark gray")
-    canvas.pack()
-    return canvas
-
+# Load car images
 def load_car_images(race_details):
-
     images = {}
-    new_height = 25  # New height to fit 20 cars vertically
-    aspect_ratio = 186 / 69  # Original width to height ratio
+    new_height = 25
+    aspect_ratio = 186 / 69
 
+    # Load images for each constructor
     for constructor in race_details['constructorRef'].unique():
         path = f'./utils/sprites/{constructor}.png'
         if os.path.exists(path):
-            with Image.open(path) as img:
-                new_width = int(new_height * aspect_ratio)  # Calculate new width to maintain aspect ratio
-                # Use Image.Resampling.LANCZOS instead of Image.ANTIALIAS
-                resized_img = img.resize((new_width, new_height), Image.Resampling.LANCZOS)
-                images[constructor] = ImageTk.PhotoImage(resized_img)
-                print(f"Loaded and resized image for {constructor}")
+            img = pygame.image.load(path)
+            new_width = int(new_height * aspect_ratio)
+            resized_img = pygame.transform.scale(img, (new_width, new_height))
+            images[constructor] = resized_img
         else:
             print(f"Image not found for constructor {constructor} at path: {path}")
 
     return images
 
+# Create car sprites
+def create_car_sprites(images, race_details):
+    car_sprites = pygame.sprite.Group()
+    y_pos = 50
+    x_pos = 50
+    space = 5
 
-
-
-def create_car_sprites(canvas, images, race_details):
-    car_sprites = {}
-    y_pos = 50  # Initial y position for the first car sprite
-    x_pos = 50  # Initial x position for all car sprites
-    space = 5  # Space between cars for visibility
-
+    # Create a car sprite for each driver
     unique_drivers = race_details.drop_duplicates(subset=['driverRef', 'constructorRef'])
-    print(f"Creating car sprites for {len(unique_drivers)} unique drivers.")
-    # Iterate over each row in race_details to create a sprite for each driver
     for index, row in unique_drivers.iterrows():
         constructor = row['constructorRef']
-        driver_name = row['driverRef']  
+        driver_name = row['driverRef']
         driver_code = row['code']
-        print(f"Processing {driver_name} in {constructor}")
 
         if constructor in images:
-            car = Car(canvas, images[constructor], x_pos, y_pos, driver_name, driver_code)
-            car_sprites[driver_name] = car
-            y_pos += images[constructor].height() + space  # Adjust y position for the next car
-            x_pos -= 5  # Adjust x position for the next car
+            car = Car(images[constructor], x_pos, y_pos, driver_name, driver_code)
+            car_sprites.add(car)
+            y_pos += images[constructor].get_height() + space
+            x_pos -= 5
 
-            
-        else:
-            print(f"No image available for {constructor}")
-
-    print(f"Created {len(car_sprites)} car sprites.")
     return car_sprites
 
+# Easing function for smooth movement
+def ease_in_out_quad(t):
+    if t < 0.5:
+        return 2 * t * t
+    return -1 + (4 - 2 * t) * t
 
+# Move cars based on lap data
+def move_cars(car_sprites, race_details, elapsed_time, total_duration, race_phase):
+    laps = sorted(race_details['lap'].unique())
+    num_laps = len(laps)
+    if num_laps == 0:
+        print("No lap data available.")
+        return
 
-def move_cars(car_sprites, canvas, race_details):
-    total_duration = 60000  # Total duration of the animation in milliseconds (60 seconds)
-    laps = sorted(race_details['lap'].unique())  # Get all unique laps and sort them
-    num_laps = len(laps)  # Total number of laps
-    frame_interval = total_duration // num_laps  # Time interval per lap frame
-    canvas_width = canvas.winfo_reqwidth()  # Total width of the canvas in pixels
+    # Calculate current lap and time within lap
+    frame_duration = total_duration / num_laps
+    current_lap_index = min(int(elapsed_time / frame_duration), num_laps - 1)
+    t = (elapsed_time % frame_duration) / frame_duration
 
-    def update_car_positions(current_lap):
-        """Updates the car positions for the given lap, including horizontal movement based on lap time."""
-        lap_data = race_details[race_details['lap'] == current_lap]
-        min_time = lap_data['time'].min().total_seconds()  # Fastest lap time in seconds for scaling
-        
-        for index, row in lap_data.iterrows():
-            driver_name = row['driverRef']
-            if driver_name in car_sprites:
-                car = car_sprites[driver_name]
-                # Calculate new Y position
-                new_y = 50 + (row['position_x'] - 1) * 30
-                # Calculate X movement based on lap time
-                lap_time_seconds = row['time'].total_seconds()
-                dx = (lap_time_seconds / min_time) * canvas_width / num_laps  # Scale movement by lap time
-                dy = new_y - car.y if car.y != new_y else 0
-                
-                car.move(dx, dy)  # Apply movement
-                car.x += dx  # Update internal x position
-                car.y = new_y  # Update internal y position if changed
+    # Get data for current and next lap
+    lap_data = race_details[race_details['lap'] == laps[current_lap_index]]
+    next_lap_data = race_details[race_details['lap'] == laps[current_lap_index + 1]] if current_lap_index + 1 < num_laps else lap_data
 
-    def animate(lap_index=0):
-        """Animates each lap in sequence with x-axis movement based on lap time."""
-        if lap_index < num_laps:
-            current_lap = laps[lap_index]
-            update_car_positions(current_lap)
-            canvas.after(frame_interval, lambda: animate(lap_index + 1))
+    # Apply easing function
+    t = ease_in_out_quad(t)
 
-    animate()
+    # Move each car based on lap data
+    for index, row in lap_data.iterrows():
+        driver_name = row['driverRef']
+        car = next((c for c in car_sprites if c.name == driver_name), None)
+        if car:
+            new_y = START_LINE_Y + (row['position'] - 1) * 30
+            next_row = next_lap_data[next_lap_data['driverRef'] == driver_name]
+            if not next_row.empty:
+                next_row = next_row.iloc[0]
+                next_new_y = START_LINE_Y + (next_row['position'] - 1) * 30
 
+                # Calculate movement based on race phase
+                if race_phase == 'start':
+                    dx = (THIRD_WIDTH - car.rect.x) * t
+                elif race_phase == 'middle':
+                    dx = 0
+                elif race_phase == 'end':
+                    dx = (FINISH_LINE_X - car.rect.x) * t
+                else:
+                    dx = 0
 
+                dy = (next_new_y - car.rect.y) * t
+                car.update(dx, dy)
 
-
-
-
-
-
+# Run the simulation
 def run_simulation():
-    root = tk.Toplevel()
-    root.title("F1 Race Simulation")
-    root.geometry("1500x700")
-    canvas = setup_canvas(root)
-    
+    pygame.init()
+    screen = pygame.display.set_mode((WIDTH, HEIGHT))
+    pygame.display.set_caption("F1 Race Simulation")
+    clock = pygame.time.Clock()
+    font = pygame.font.SysFont(None, 36)
+
+    # Load race data
     race_details = load_data()
+    if race_details.empty:
+        print("Race details are empty. Exiting.")
+        return
+
+    # Load car images and create car sprites
     images = load_car_images(race_details)
-    car_sprites = create_car_sprites(canvas, images, race_details)
-    
-    move_cars(car_sprites, canvas, race_details)
-    root.mainloop()
+    car_sprites = create_car_sprites(images, race_details)
+
+    total_duration = 60  # Duration of the simulation in seconds
+    elapsed_time = 0
+    phase_duration = 10  # Duration of each phase in seconds
+
+    running = True
+    while running:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+
+        screen.fill((169, 169, 169))  # Dark gray background
+
+        # Draw start and finish lines
+        pygame.draw.line(screen, (255, 255, 255), (0, START_LINE_Y), (WIDTH, START_LINE_Y), 5)
+        pygame.draw.line(screen, (255, 255, 255), (0, FINISH_LINE_Y), (WIDTH, FINISH_LINE_Y), 5)
+
+        # Determine race phase
+        if elapsed_time < phase_duration:
+            race_phase = 'start'
+        elif elapsed_time < total_duration - phase_duration:
+            race_phase = 'middle'
+        else:
+            race_phase = 'end'
+
+        # Move cars and draw them
+        move_cars(car_sprites, race_details, elapsed_time, total_duration, race_phase)
+        car_sprites.draw(screen)
+
+        # Update and display current lap
+        current_lap = min(int(elapsed_time / (total_duration / len(race_details['lap'].unique()))), len(race_details['lap'].unique()))
+        lap_text = font.render(f"Lap: {current_lap + 1}", True, (255, 255, 255))
+        screen.blit(lap_text, (WIDTH // 2 - lap_text.get_width() // 2, 10))
+
+        pygame.display.flip()
+        clock.tick(FPS)
+        elapsed_time += clock.get_time() / 1000  # Update elapsed time in seconds
+
+    pygame.quit()
 
 if __name__ == '__main__':
     run_simulation()

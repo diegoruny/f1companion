@@ -1,6 +1,6 @@
 import tkinter as tk
 from tkinter import ttk
-from ..utils.last_race_sim_data import run_simulation
+# from ..utils.last_race_sim_data import run_simulation
 
 class NextRaceView(tk.Frame):
     def __init__(self, parent, api_handler, *args, **kwargs):
@@ -26,7 +26,7 @@ class NextRaceView(tk.Frame):
             date_time_str = f"{race_details['date']}"
             ttk.Label(card_frame, text=date_time_str, font=("Helvetica", 12)).pack(padx=10, pady=10)
             # Button to open a new window
-            more_info_button = ttk.Button(card_frame, text="More Info", command=self.open_new_window)
+            more_info_button = ttk.Button(card_frame, text="More Info", command='')
             more_info_button.pack(pady=10)
             
             return card_frame
@@ -54,5 +54,5 @@ class NextRaceView(tk.Frame):
             print("Failed to retrieve complete race details or podium.")
             return None  # Explicitly return None if data is incomplete
 
-    def open_new_window(self):
-        run_simulation()
+    # def open_new_window(self):
+    #     run_simulation()
