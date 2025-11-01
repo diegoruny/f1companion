@@ -3,14 +3,21 @@ import ttkbootstrap as ttk
 from ttkbootstrap.constants import * 
 
 
-class Standings(ttk.Frame):
+class Driver_standings(ttk.Frame):
+    """Widget for displaying driver championship standings.
+    
+    Displays a table with driver position, name, nationality, team, and points.
+    
+    Args:
+        parent: Parent Tkinter widget
+        api_handler: Instance of ErgastAPI for fetching driver standings
+    """
     def __init__(self, parent, api_handler, *args, **kwargs):
         super().__init__(parent, *args, **kwargs)
         self.parent = parent
         self.api_handler = api_handler
         self.standings_area = ttk.Frame(self)
         self.drivers_data = self.api_handler.get_driver_standings()
-        print("self.drivers_data in Standings", self.drivers_data)
 
         table_title = ttk.Label(self.parent, text="DRIVERS STANDINGS", font=('Helvetica', 22), bootstyle='inverse-danger').pack(pady=10)
         

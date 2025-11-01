@@ -1,5 +1,6 @@
 import pygame
 import sys
+import os
 
 # Initialize Pygame
 pygame.init()
@@ -50,7 +51,8 @@ while running:
     
     
     for pos in car_positions:
-        screen.blit(pygame.image.load("C:/Users/Diegoruny/Documents/Coding/Python/Intro Soft Dev/codefoemefromme/Final Proyect/finalProject/utils/sprites/williams.bmp"), (50, 30))
+        sprite_path = os.path.join(os.path.dirname(__file__), "sprites", "williams.bmp")
+        screen.blit(pygame.image.load(sprite_path), (50, 30))
         pygame.draw.rect(screen, WHITE, pygame.Rect(pos[0], pos[1], 50, 30))
 
 

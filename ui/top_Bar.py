@@ -3,6 +3,14 @@ from tkinter import ttk
 from .next_race import NextRaceView
 
 class TopBar(ttk.Frame):
+    """Top navigation bar widget for the F1 Race Companion application.
+    
+    Displays the F1 logo and race information cards (last race and next race).
+    
+    Args:
+        parent: Parent Tkinter widget
+        api_handler: Instance of ErgastAPI for fetching race information
+    """
     def __init__(self, parent, api_handler, *args, **kwargs):
         super().__init__(parent, *args, **kwargs)
         self.api_handler = api_handler

@@ -1,8 +1,17 @@
 import tkinter as tk
 from tkinter import ttk
-from ..utils.last_race_sim_data import run_simulation
+# from ..utils.last_race_sim_data import run_simulation
 
 class NextRaceView(tk.Frame):
+    """Widget for displaying last race and next race information cards.
+    
+    Shows two side-by-side cards: one for the last completed race and one
+    for the upcoming race.
+    
+    Args:
+        parent: Parent Tkinter widget
+        api_handler: Instance of ErgastAPI for fetching race information
+    """
     def __init__(self, parent, api_handler, *args, **kwargs):
         super().__init__(parent, *args, **kwargs)
         self.parent = parent
@@ -12,6 +21,7 @@ class NextRaceView(tk.Frame):
         self.next_race_card().pack(side='right', padx=10, pady=10, fill='both', expand=True)
 
     def last_race_card(self):
+        """Create and return a card displaying the last completed race information."""
         race_details = self.api_handler.get_last_race()[0]
         if race_details:
             # Frame for the card
@@ -25,16 +35,13 @@ class NextRaceView(tk.Frame):
             # Date and Time
             date_time_str = f"{race_details['date']}"
             ttk.Label(card_frame, text=date_time_str, font=("Helvetica", 12)).pack(padx=10, pady=10)
-            # Button to open a new window
-            more_info_button = ttk.Button(card_frame, text="More Info", command=self.open_new_window)
-            more_info_button.pack(pady=10)
             
             return card_frame
         else:
-            print("Failed to retrieve complete race details or podium.")
             return None  # Explicitly return None if data is incomplete
 
     def next_race_card(self):
+        """Create and return a card displaying the next upcoming race information."""
         race_details = self.api_handler.get_next_race()
         if race_details:
             # Frame for the card
@@ -51,8 +58,4 @@ class NextRaceView(tk.Frame):
             
             return card_frame
         else:
-            print("Failed to retrieve complete race details or podium.")
             return None  # Explicitly return None if data is incomplete
-
-    def open_new_window(self):
-        run_simulation()

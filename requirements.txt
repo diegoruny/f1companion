@@ -1,0 +1,10 @@
+# Core dependencies
+pandas>=2.0.0,<3.0.0
+requests>=2.31.0,<3.0.0
+ttkbootstrap>=1.10.0,<2.0.0
+sv-ttk>=2.0.0,<3.0.0
+
+# Optional dependencies (for race simulation)
+pygame>=2.5.0,<3.0.0
+
+# Note: tkinter is built into Python and does not need to be installed
