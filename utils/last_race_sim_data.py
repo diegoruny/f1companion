@@ -88,7 +88,8 @@ def load_car_images(race_details):
             resized_img = pygame.transform.scale(img, (new_width, new_height))
             images[constructor] = resized_img
         else:
-            print(f"Image not found for constructor {constructor} at path: {path}")
+            # Image not found, skip this constructor
+            pass
 
     return images
 
@@ -110,7 +111,7 @@ def create_car_sprites(images, race_details):
             car = Car(images[constructor], x_pos, y_pos, driver_name, driver_code)
             car_sprites.add(car)
             y_pos += images[constructor].get_height() + space
-            x_pos -= 5
+            x_pos -= space
 
     return car_sprites
 
@@ -184,7 +185,7 @@ def run_simulation():
 
     total_duration = 60  # Duration of the simulation in seconds
     elapsed_time = 0
-    phase_duration = 10  # Duration of each phase in seconds
+    phase_duration = 3  # Duration of each phase in seconds
 
     running = True
     while running:
@@ -217,7 +218,7 @@ def run_simulation():
 
         pygame.display.flip()
         clock.tick(FPS)
-        elapsed_time += clock.get_time() / 1000  # Update elapsed time in seconds
+        elapsed_time += clock.get_time() / 2200  # Update elapsed time in seconds
 
     pygame.quit()
 
