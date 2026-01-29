@@ -7,7 +7,8 @@ driver standings, constructor standings, and upcoming race details.
 import tkinter as tk
 from ui.dashboard import Dashboard
 import sv_ttk
-from api.api_handler import ErgastAPI
+# Use CSV handler for offline mode (API is deprecated)
+from api.csv_handler import ErgastAPI
 
 
 def main():

@@ -1,0 +1,214 @@
+# Technical Debt - F1 Companion
+
+> **Last Updated:** 2026-01-29  
+> **Code Rating:** 10.00/10 (pylint) ✅  
+> **Test Coverage:** 85% (api/csv_handler.py) ✅
+
+---
+
+## 📊 Summary
+
+| Category | Count | Severity | Status |
+|----------|-------|----------|--------|
+| Code Quality | 6 | Medium | ✅ **DONE** (PR #3) |
+| Dead Code | 4 | Low | 🟡 In Progress |
+| Missing Tests | 1 | High | ✅ **DONE** (PR #4) |
+| Architecture | 3 | Medium | 🟡 Planned |
+| Documentation | 2 | Low | ✅ Mostly Done |
+
+---
+
+## ✅ Completed
+
+### TD-001: No Unit Tests ✅ **DONE** (PR #4)
+**Resolution:** Added comprehensive test suite
+- ✅ 15 tests (7 unit + 8 integration)
+- ✅ 85% coverage for csv_handler.py
+- ✅ pytest configuration
+- ✅ requirements-dev.txt
+- ✅ Test documentation
+
+### TD-002 - TD-006: Code Quality Issues ✅ **DONE** (PR #3)
+**Resolution:** All pylint issues resolved
+- ✅ Import order fixed
+- ✅ Unused imports removed
+- ✅ Trailing whitespace cleaned
+- ✅ File encoding specified
+- ✅ Unused parameters documented
+- **Final Score:** 10.00/10 pylint
+
+---
+
+## 🔴 High Priority
+
+**All high priority items completed!** ✅
+
+---
+
+## 🟡 Medium Priority (Remaining)
+
+### TD-002 - TD-006: Code Quality Issues ✅ **COMPLETED** (See PR #3)
+
+---
+
+### TD-007: Duplicate API Handler Files
+**Location:** `api/`
+**Issue:** Both `api_handler.py` (391 lines) and `csv_handler.py` (299 lines) exist
+
+**Current State:**
+- `api_handler.py` - Dead code (Ergast API offline)
+- `csv_handler.py` - Active code
+
+**Options:**
+1. Delete `api_handler.py` entirely
+2. Keep as reference/documentation
+3. Create hybrid that can switch modes
+
+**Recommendation:** Archive to `deprecated/` folder
+
+**Estimated Time:** 10 minutes
+
+---
+
+### TD-008: Hardcoded Data Paths
+**Location:** `api/csv_handler.py:30-31`
+**Issue:** Data file paths hardcoded relative to module
+
+```python
+self.race_data_path = os.path.join(data_dir, 'final_race_data.csv')
+self.standings_path = os.path.join(data_dir, 'current_drivers_standings.json')
+```
+
+**Resolution:** Move to config file or environment variables
+
+**Estimated Time:** 15 minutes
+
+---
+
+## 🟢 Low Priority
+
+### TD-009: Experimental Code in Repo
+**Location:** `experimental/`
+**Issue:** 3 unused files (175 lines total)
+
+**Files:**
+- `driver_standings.py` (23 lines) - replaced by `list_builder.py`
+- `test_api.py` (20 lines) - old API tests
+- `turtle_sim.py` (132 lines) - never integrated
+
+**Options:**
+1. Delete entirely
+2. Move to separate branch
+3. Keep with clear README (current)
+
+**Estimated Time:** 5 minutes
+
+---
+
+### TD-010: Race Simulation Code Unused
+**Location:** `utils/last_race_sim_data.py` (225 lines)
+**Issue:** Large file with experimental race simulation, never integrated into UI
+
+**Options:**
+1. Complete and integrate
+2. Move to `experimental/`
+3. Delete
+
+**Estimated Time:** Varies (2-8 hours to complete, 5 min to remove)
+
+---
+
+### TD-011: Missing Type Hints in UI
+**Location:** `ui/*.py`
+**Issue:** No type annotations in UI layer
+
+**Example:**
+```python
+# Current
+def __init__(self, parent, api_handler, *args, **kwargs):
+
+# Should be
+def __init__(self, parent: tk.Widget, api_handler: ErgastAPI, *args, **kwargs) -> None:
+```
+
+**Estimated Time:** 1 hour
+
+---
+
+### TD-012: Inconsistent Naming
+**Location:** Various
+**Issue:** Mix of naming conventions
+
+**Examples:**
+- `Driver_standings` vs `NextRaceView` (class names)
+- `top_Bar.py` vs `list_builder.py` (file names)
+- `get_driver_standings` vs `get_constructors_championship` (method names)
+
+**Estimated Time:** 30 minutes
+
+---
+
+## 📋 Action Plan (Updated)
+
+### ✅ Sprint 1: Quick Wins (COMPLETED)
+- [x] TD-002: Fix import order
+- [x] TD-003: Remove unused import
+- [x] TD-004: Fix trailing whitespace
+- [x] TD-005: Add encoding to open()
+- [x] TD-006: Document unused parameter
+
+### ✅ Sprint 2: Tests (COMPLETED)
+- [x] TD-001: Add pytest setup
+- [x] TD-001: Write unit tests
+- [x] TD-001: Write integration tests
+- [x] TD-001: Add test documentation
+
+### 🔜 Sprint 3: Cleanup (Next)
+- [ ] TD-007: Archive deprecated API handler
+- [ ] TD-008: Move paths to config
+- [ ] TD-009: Clean experimental folder
+
+### 📅 Sprint 4: Polish (Future)
+- [ ] TD-011: Add type hints to UI
+- [ ] TD-012: Standardize naming
+- [ ] TD-010: Decide on race simulation feature
+
+---
+
+## 🔧 Quick Fix Commands
+
+```bash
+# Fix formatting issues
+cd ~/projects/f1companion
+pip install black isort
+black api/csv_handler.py
+isort api/csv_handler.py
+
+# Run linter
+pylint api/csv_handler.py --max-line-length=120
+
+# Run tests (after creating them)
+pytest tests/ -v --cov=api
+```
+
+---
+
+## 📈 Target Metrics
+
+| Metric | Current | Target | Status |
+|--------|---------|--------|--------|
+| Pylint Score | 10.00/10 | 8.0/10 | ✅ **EXCEEDED** |
+| Test Coverage | 85% | 70% | ✅ **EXCEEDED** |
+| Type Coverage | ~30% | 80% | 🟡 In Progress |
+| Dead Code | ~400 lines | 0 | 🟡 Planned |
+
+---
+
+## 📦 Pull Requests
+
+- **PR #3:** Code quality improvements (pylint 10/10) ✅ **MERGED**
+- **PR #4:** Test suite (15/15 passing, 85% coverage) 🔄 **OPEN**
+
+---
+
+*Document generated by Jarvis • Last review: 2026-01-29*

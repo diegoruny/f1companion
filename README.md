@@ -1,100 +1,125 @@
 # F1 Race Companion
 
-F1 Race Companion is a Python desktop application that provides real-time Formula 1 racing information including driver standings, constructor standings, and upcoming race details. The application features a modern GUI built with Tkinter and integrates with the Ergast F1 API to fetch live racing data.
+A Python desktop application for viewing Formula 1 racing information including driver standings, constructor standings, and race details. Features a modern GUI built with Tkinter.
 
-## Features
+![Python](https://img.shields.io/badge/Python-3.7+-blue?logo=python&logoColor=white)
+![License](https://img.shields.io/badge/License-MIT-green)
+![Status](https://img.shields.io/badge/Status-Active-brightgreen)
+
+## ✨ Features
 
 - **Driver Standings**: View current season driver championship standings with positions, points, nationality, and teams
 - **Constructor Standings**: Track constructor championship standings with wins and points
-- **Next Race Information**: See details about the upcoming F1 race including circuit, location, date, and time
+- **Next Race Information**: See details about upcoming F1 races
 - **Last Race Results**: View podium finishers and details from the most recent race
-- **Data Caching**: Intelligent caching system reduces API calls and improves performance
-- **Real-time Updates**: Fetches live data from the Ergast F1 API
+- **Offline Mode**: Works without internet using bundled 2024 season data
+- **Modern UI**: Clean interface with ttkbootstrap theming
 
-## Technology Stack
+## 🖥️ Screenshots
 
-- **Python**: 3.7+
-- **GUI Framework**: 
-  - Tkinter (built-in Python GUI library)
-  - ttkbootstrap (modern styling for Tkinter widgets)
-  - sv-ttk (Silicon Valley theme)
-- **Data Processing**: pandas
-- **API Integration**: requests
-- **Optional**: pygame (for race simulation features - experimental)
+*Coming soon*
 
-## Installation
+## 🛠️ Technology Stack
 
-1. Ensure you have Python 3.7 or higher installed on your system.
+| Category | Technologies |
+|----------|-------------|
+| **Language** | Python 3.7+ |
+| **GUI** | Tkinter, ttkbootstrap, sv-ttk |
+| **Data** | pandas |
+| **API** | requests (optional, for live data) |
 
-2. Clone this repository:
+## 📦 Installation
+
+1. **Clone the repository:**
    ```bash
    git clone https://github.com/diegoruny/f1companion.git
    cd f1companion
    ```
 
-3. (Recommended) Create and activate a virtual environment:
+2. **Create virtual environment (recommended):**
    ```bash
-   # On Windows
+   # Windows
    python -m venv venv
    venv\Scripts\activate
    
-   # On macOS/Linux
+   # macOS/Linux
    python -m venv venv
    source venv/bin/activate
    ```
 
-4. Install the required dependencies:
+3. **Install dependencies:**
    ```bash
    pip install -r requirements.txt
    ```
 
-## Running the Application
-
-To run the F1 Race Companion, execute the following command in the project root directory:
+## 🚀 Running the Application
 
 ```bash
 python main.py
 ```
 
-The application will launch with a window displaying:
-- Top bar with last race and next race information
+The application launches with:
+- Top bar showing last race and next race information
 - Tabbed interface with Driver Standings and Constructor Standings
 
-## Project Structure
+## 📁 Project Structure
 
 ```
-├── main.py                    # Application entry point
+f1companion/
+├── main.py                     # Application entry point
 ├── api/
-│   ├── api_handler.py        # Ergast F1 API wrapper
-│   └── localData/            # Local CSV race data files
+│   ├── csv_handler.py          # Offline data handler (CSV/JSON)
+│   ├── api_handler.py          # Online API handler (deprecated)
+│   ├── cache_manager.py        # Cache management
+│   └── config.py               # API configuration
 ├── ui/
-│   ├── dashboard.py          # Main dashboard container
-│   ├── list_builder.py       # Driver standings widget
+│   ├── dashboard.py            # Main dashboard container
+│   ├── list_builder.py         # Driver standings widget
 │   ├── constructors_standings.py  # Constructor standings widget
-│   ├── next_race.py          # Next/last race cards
-│   └── top_Bar.py            # Top navigation bar
-└── utils/
-    ├── last_race_sim_data.py  # Race simulation (experimental)
-    └── sprites/               # Car images for simulation
+│   ├── next_race.py            # Next/last race cards
+│   └── top_Bar.py              # Top navigation bar
+├── utils/
+│   └── sprites/                # Car images
+├── final_race_data.csv         # Race results data
+├── current_drivers_standings.json  # Standings data
+└── requirements.txt
 ```
 
-## Requirements
+## 🔄 Data Modes
+
+### Offline Mode (Default)
+The app now runs in **offline mode** by default, using bundled 2024 season data:
+- `final_race_data.csv` - Race results and lap data
+- `current_drivers_standings.json` - Driver/constructor standings
+
+No internet connection required!
+
+### Online Mode (Deprecated)
+The original Ergast F1 API is no longer available. The `api_handler.py` is kept for reference but the app now uses `csv_handler.py` for all data.
+
+## 📋 Requirements
 
 - Python 3.7 or higher
-- Internet connection for API calls (data is cached locally)
-- All dependencies listed in `requirements.txt`
+- Dependencies listed in `requirements.txt`:
+  - pandas >= 2.0.0
+  - requests >= 2.31.0
+  - ttkbootstrap >= 1.10.0
+  - sv-ttk >= 2.0.0
 
-## Known Limitations
+## 🐛 Known Limitations
 
-- Race simulation features are experimental and not fully integrated into the main UI
-- Application requires internet connection to fetch initial data (subsequent requests use cached data)
-- Some features may not work during F1 off-season when no races are scheduled
+- Race simulation features are experimental
+- Data is from 2024 season (static, not live)
+- Some date/time fields show placeholder values in offline mode
 
-## Contributing
+## 🤝 Contributing
 
-This is a personal portfolio project. If you find any issues or have suggestions, feel free to open an issue or submit a pull request.
+This is a personal portfolio project. Issues and pull requests are welcome!
 
-## License
+## 📄 License
 
 This project is open source and available for personal and educational use.
 
+---
+
+*Built with ❤️ by [Diego Delgado Torres](https://github.com/diegoruny)*
