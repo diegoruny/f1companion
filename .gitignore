@@ -29,9 +29,9 @@ wheels/
 *.egg
 
 # Cached data files
-*.json
-!package.json
-!package-lock.json
+# *.json  # Commented out - we need current_drivers_standings.json
+# !package.json
+# !package-lock.json
 
 # IDE and editor files
 .vscode/
@@ -51,7 +51,10 @@ Thumbs.db
 .coverage
 htmlcov/
 
-# Project specific
-*.csv
+# Project specific - keep data files
+# *.csv  # Commented out - we need final_race_data.csv
 !api/localData/*.csv
-final_race_data*.csv
+# final_race_data*.csv  # Keep this for offline mode
+
+# Cache directory (not data files)
+api/cache/
