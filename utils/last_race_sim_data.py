@@ -141,16 +141,22 @@ def move_cars(car_sprites, race_details, elapsed_time, total_duration, race_phas
     # Apply easing function
     t = ease_in_out_quad(t)
 
+    # Dictionary mapping driver names to car sprites
+    car_sprite_map = {c.name: c for c in car_sprites}
+
+    # Map the next lap drivers to positions
+    # since next_lap_data is accessed iteratively
+    next_lap_driver_positions = {row['driverRef']: row['position'] for _, row in next_lap_data.iterrows()}
+
     # Move each car based on lap data
     for index, row in lap_data.iterrows():
         driver_name = row['driverRef']
-        car = next((c for c in car_sprites if c.name == driver_name), None)
+        car = car_sprite_map.get(driver_name)
         if car:
             new_y = START_LINE_Y + (row['position'] - 1) * 30
-            next_row = next_lap_data[next_lap_data['driverRef'] == driver_name]
-            if not next_row.empty:
-                next_row = next_row.iloc[0]
-                next_new_y = START_LINE_Y + (next_row['position'] - 1) * 30
+            if driver_name in next_lap_driver_positions:
+                next_position = next_lap_driver_positions[driver_name]
+                next_new_y = START_LINE_Y + (next_position - 1) * 30
 
                 # Calculate movement based on race phase
                 if race_phase == 'start':
